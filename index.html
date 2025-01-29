@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Electronics Virtual Lab - Logic Gate Testing</title>
+    <title>Interactive Digital Electronics Lab - Logic Gate Testing</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,7 +20,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 400px;
+            width: 450px;
         }
         h1 {
             color: #333;
@@ -30,31 +30,34 @@
             padding: 5px;
             text-align: center;
         }
-        button {
-            padding: 10px 20px;
+        .gate-container {
+            margin-top: 20px;
+        }
+        .gate {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px;
             background-color: #4CAF50;
             color: white;
-            border: none;
+            border-radius: 10px;
             cursor: pointer;
-            border-radius: 5px;
-            margin: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
         }
-        button:hover {
-            background-color: #45a049;
+        .gate:hover {
+            transform: scale(1.1);
         }
-        .output {
+        .output-container {
             margin-top: 20px;
-            font-size: 20px;
-            font-weight: bold;
         }
         .bulb {
-            margin-top: 20px;
             width: 50px;
             height: 50px;
             border-radius: 50%;
             background-color: #ccc;
             margin-left: auto;
             margin-right: auto;
+            transition: background-color 0.3s ease;
         }
         .on {
             background-color: yellow; /* Represents a lit-up bulb */
@@ -66,29 +69,42 @@
             width: 50px;
             height: 50px;
         }
+        .result {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Logic Gate Test</h1>
+        <h1>Interactive Logic Gate Lab</h1>
 
         <label for="inputA">Input A:</label>
         <input type="number" id="inputA" min="0" max="1" placeholder="0 or 1">
-        <br>
-
+        <br><br>
+        
         <label for="inputB">Input B:</label>
         <input type="number" id="inputB" min="0" max="1" placeholder="0 or 1">
         <br><br>
 
-        <!-- Buttons for each gate -->
-        <button onclick="testAND()">AND Gate</button>
-        <button onclick="testOR()">OR Gate</button>
-        <button onclick="testNOT()">NOT Gate (A)</button>
-        <button onclick="testNAND()">NAND Gate</button>
-        <button onclick="testNOR()">NOR Gate</button>
-        <button onclick="testXOR()">XOR Gate</button>
-        <button onclick="testXNOR()">XNOR Gate</button>
+        <!-- Gate Buttons (Clickable) -->
+        <div class="gate-container">
+            <div class="gate" onclick="activateGate('AND')">AND Gate</div>
+            <div class="gate" onclick="activateGate('OR')">OR Gate</div>
+            <div class="gate" onclick="activateGate('NOT')">NOT Gate</div>
+            <div class="gate" onclick="activateGate('NAND')">NAND Gate</div>
+            <div class="gate" onclick="activateGate('NOR')">NOR Gate</div>
+            <div class="gate" onclick="activateGate('XOR')">XOR Gate</div>
+            <div class="gate" onclick="activateGate('XNOR')">XNOR Gate</div>
+        </div>
 
+        <div class="output-container">
+            <div class="result" id="result">Choose a gate and input values to test.</div>
+            <div class="bulb" id="bulb"></div> <!-- Bulb to show output -->
+        </div>
+
+        <!-- Logic Gate Diagram Section -->
         <div class="gate-diagram">
             <h3>Logic Gate Diagrams</h3>
             <img id="and-gate-diagram" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/AND_ANSI_Labelled.svg/320px-AND_ANSI_Labelled.svg.png" alt="AND Gate">
@@ -99,104 +115,60 @@
             <img id="xor-gate-diagram" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/XOR_ANSI_Labelled.svg/320px-XOR_ANSI_Labelled.svg.png" alt="XOR Gate">
             <img id="xnor-gate-diagram" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/XNOR_ANSI_Labelled.svg/320px-XNOR_ANSI_Labelled.svg.png" alt="XNOR Gate">
         </div>
-
-        <div class="output" id="result"></div>
-        
-        <div class="bulb" id="bulb"></div> <!-- Bulb to show output -->
     </div>
 
     <script>
-        // AND Gate
-        function testAND() {
+        // Function to get binary input values
+        function getInputValues() {
             const inputA = parseInt(document.getElementById('inputA').value);
             const inputB = parseInt(document.getElementById('inputB').value);
             if (isNaN(inputA) || isNaN(inputB)) {
-                document.getElementById('result').innerHTML = 'Please enter valid binary inputs (0 or 1).';
+                return null; // Return null if inputs are invalid
+            }
+            return { inputA, inputB };
+        }
+
+        // Function to activate the corresponding gate and show result
+        function activateGate(gateType) {
+            const values = getInputValues();
+            if (!values) {
+                document.getElementById('result').innerText = 'Please enter valid binary inputs for A and B (0 or 1).';
                 return;
             }
-            const result = inputA && inputB;
-            document.getElementById('result').innerHTML = `AND Gate Output: ${result}`;
+
+            let result;
+            switch (gateType) {
+                case 'AND':
+                    result = values.inputA && values.inputB;
+                    break;
+                case 'OR':
+                    result = values.inputA || values.inputB;
+                    break;
+                case 'NOT':
+                    result = !values.inputA ? 1 : 0; // NOT Gate works only on A
+                    break;
+                case 'NAND':
+                    result = !(values.inputA && values.inputB);
+                    break;
+                case 'NOR':
+                    result = !(values.inputA || values.inputB);
+                    break;
+                case 'XOR':
+                    result = (values.inputA !== values.inputB) ? 1 : 0;
+                    break;
+                case 'XNOR':
+                    result = (values.inputA === values.inputB) ? 1 : 0;
+                    break;
+                default:
+                    return;
+            }
+
+            // Display result and update bulb color
+            document.getElementById('result').innerText = `${gateType} Gate Output: ${result}`;
             updateBulb(result);
         }
 
-        // OR Gate
-        function testOR() {
-            const inputA = parseInt(document.getElementById('inputA').value);
-            const inputB = parseInt(document.getElementById('inputB').value);
-            if (isNaN(inputA) || isNaN(inputB)) {
-                document.getElementById('result').innerHTML = 'Please enter valid binary inputs (0 or 1).';
-                return;
-            }
-            const result = inputA || inputB;
-            document.getElementById('result').innerHTML = `OR Gate Output: ${result}`;
-            updateBulb(result);
-        }
-
-        // NOT Gate
-        function testNOT() {
-            const inputA = parseInt(document.getElementById('inputA').value);
-            if (isNaN(inputA)) {
-                document.getElementById('result').innerHTML = 'Please enter a valid binary input for A (0 or 1).';
-                return;
-            }
-            const result = !inputA ? 1 : 0; // NOT Gate
-            document.getElementById('result').innerHTML = `NOT Gate Output (A): ${result}`;
-            updateBulb(result);
-        }
-
-        // NAND Gate
-        function testNAND() {
-            const inputA = parseInt(document.getElementById('inputA').value);
-            const inputB = parseInt(document.getElementById('inputB').value);
-            if (isNaN(inputA) || isNaN(inputB)) {
-                document.getElementById('result').innerHTML = 'Please enter valid binary inputs (0 or 1).';
-                return;
-            }
-            const result = !(inputA && inputB);
-            document.getElementById('result').innerHTML = `NAND Gate Output: ${result}`;
-            updateBulb(result);
-        }
-
-        // NOR Gate
-        function testNOR() {
-            const inputA = parseInt(document.getElementById('inputA').value);
-            const inputB = parseInt(document.getElementById('inputB').value);
-            if (isNaN(inputA) || isNaN(inputB)) {
-                document.getElementById('result').innerHTML = 'Please enter valid binary inputs (0 or 1).';
-                return;
-            }
-            const result = !(inputA || inputB);
-            document.getElementById('result').innerHTML = `NOR Gate Output: ${result}`;
-            updateBulb(result);
-        }
-
-        // XOR Gate
-        function testXOR() {
-            const inputA = parseInt(document.getElementById('inputA').value);
-            const inputB = parseInt(document.getElementById('inputB').value);
-            if (isNaN(inputA) || isNaN(inputB)) {
-                document.getElementById('result').innerHTML = 'Please enter valid binary inputs (0 or 1).';
-                return;
-            }
-            const result = (inputA !== inputB) ? 1 : 0;
-            document.getElementById('result').innerHTML = `XOR Gate Output: ${result}`;
-            updateBulb(result);
-        }
-
-        // XNOR Gate
-        function testXNOR() {
-            const inputA = parseInt(document.getElementById('inputA').value);
-            const inputB = parseInt(document.getElementById('inputB').value);
-            if (isNaN(inputA) || isNaN(inputB)) {
-                document.getElementById('result').innerHTML = 'Please enter valid binary inputs (0 or 1).';
-                return;
-            }
-            const result = (inputA === inputB) ? 1 : 0;
-            document.getElementById('result').innerHTML = `XNOR Gate Output: ${result}`;
-            updateBulb(result);
-        }
-
-        // Update Bulb Status (Light Up / Turn Off)
+        // Update the bulb based on the result of the gate operation
         function updateBulb(result) {
             const bulb = document.getElementById('bulb');
             if (result === 1) {
